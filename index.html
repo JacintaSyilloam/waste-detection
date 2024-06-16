@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Waste Detection</title>
+
+  <script src="https://cdn.roboflow.com/0.2.26/roboflow.js"></script>
+
+  <link rel="stylesheet" href="./style.css" />
+
+  <script>
+    var publishable_key = "rf_s5mLklPKt7aeAVvKicXID72mzsG2";
+
+    const CONFIDENCE_THRESHOLD = 0.1;
+    const MODEL_NAME = "waste-object-detection-hltsh";
+    const MODEL_VERSION = 1;
+  </script>
+</head>
+
+<body>
+  <main>
+    <br>
+    <h1>♻️ Waste Detection ♻️</h1>
+
+    <p id="loading">Loading...</p>
+
+    <!-- The canvas below is required -->
+    <section class="infer-widget">
+      <canvas width="640" height="480" id="video_canvas"></canvas>
+    </section>
+
+    <section id="settings">
+      <label for="confidence">Prediction Confidence %</label><br>
+      <input type="range" min="1" max="100" value="60" class="slider" id="confidence">
+    </section>
+
+    <!-- Load our application logic -->
+    <script src="./script.js"></script>
+  </main>
+</body>
+
+</html>

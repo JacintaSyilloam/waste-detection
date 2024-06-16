@@ -1,0 +1,36 @@
+html, body {
+    height: 100%;
+    width: 100%;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  
+  p, a {
+    line-height: 1.5em;
+  }
+  
+  #loading {
+    display: none;
+  }
+  
+  #settings {
+    margin-top: 30px;
+    margin-bottom: 30px;
+  }
+  
+  h1, a {
+    color: #09af83;
+  }
+  
+  label {
+    font-weight: 50px;
+  }
+  
+  a {
+    text-decoration: none;
+  }
+  
+  main {
+    width: 40em;
+    margin: auto;
+    text-align: center;
+  }
