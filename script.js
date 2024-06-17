@@ -32,21 +32,45 @@ var ctx = canvas.getContext("2d");
 
 var model = null;
 
-let plastic_alert = new Audio('incorrect-buzzer-sound-147336.mp3');
-
+let sound_alert = new Audio("incorrect-buzzer-sound-147336.mp3");
 
 function detectFrame() {
   if (!model) return requestAnimationFrame(detectFrame);
 
-  model.detect(video).then(function(predictions) {
-
+  model.detect(video).then(function (predictions) {
     console.log(predictions);
-    _.each(predictions, function(prediction) {
-      if (prediction.class == "Plastic bag") {
-        plastic_alert.play();
-      }
-      });
 
+    // PLASTIC CATEGORY
+    // Remove if webcam is pointing to plastic waste bin
+    _.each(predictions, function (prediction) {
+      if (
+        prediction.class == "Plastic bag" ||
+        prediction.class == "Plastic bottle"
+      ) {
+        sound_alert.play();
+      }
+    });
+
+    // // ORGANIC
+    // // Remove if webcam is pointing to organic waste bin
+    // _.each(predictions, function (prediction) {
+    //   if (prediction.class == "Organic") {
+    //     sound_alert.play();
+    //   }
+    // });
+
+    // OTHERS
+    // Remove if webcam is pointing to others waste bin
+    _.each(predictions, function (prediction) {
+      if (
+        prediction.class == "Container for household chemicals" ||
+        prediction.class == "Aluminum can" ||
+        prediction.class == "Glass bottle" ||
+        prediction.class == "Cardboard"
+      ) {
+        sound_alert.play();
+      }
+    });
 
     if (!canvas_painted) {
       var video_start = document.getElementById("video1");
@@ -71,7 +95,7 @@ function detectFrame() {
     requestAnimationFrame(detectFrame);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     if (video) {
-      drawBoundingBoxes(predictions, ctx)
+      drawBoundingBoxes(predictions, ctx);
     }
   });
 }
@@ -88,10 +112,10 @@ function drawBoundingBoxes(predictions, ctx) {
   for (var i = 0; i < predictions.length; i++) {
     var confidence = predictions[i].confidence;
 
-    console.log(user_confidence)
+    console.log(user_confidence);
 
     if (confidence < user_confidence) {
-      continue
+      continue;
     }
 
     if (predictions[i].class in bounding_box_colors) {
@@ -121,7 +145,11 @@ function drawBoundingBoxes(predictions, ctx) {
     ctx.lineWidth = "4";
     ctx.strokeRect(x, y, width, height);
     ctx.font = "25px Arial";
-    ctx.fillText(prediction.class + " " + Math.round(confidence * 100) + "%", x, y - 10);
+    ctx.fillText(
+      prediction.class + " " + Math.round(confidence * 100) + "%",
+      x,
+      y - 10
+    );
   }
 }
 
@@ -132,7 +160,7 @@ function webcamInference() {
 
   navigator.mediaDevices
     .getUserMedia({ video: { facingMode: "environment" } })
-    .then(function(stream) {
+    .then(function (stream) {
       video = document.createElement("video");
       video.srcObject = stream;
       video.id = "video1";
@@ -143,12 +171,12 @@ function webcamInference() {
 
       document.getElementById("video_canvas").after(video);
 
-      video.onloadeddata = function() {
+      video.onloadeddata = function () {
         video.play();
-      }
+      };
 
       // on full load, set the video height and width
-      video.onplay = function() {
+      video.onplay = function () {
         height = video.videoHeight;
         width = video.videoWidth;
 
@@ -185,7 +213,7 @@ function webcamInference() {
           model: MODEL_NAME,
           version: MODEL_VERSION,
         })
-        .then(function(m) {
+        .then(function (m) {
           model = m;
           // Images must have confidence > CONFIDENCE_THRESHOLD to be returned by the model
           m.configure({ threshold: CONFIDENCE_THRESHOLD });
@@ -193,15 +221,17 @@ function webcamInference() {
           detectFrame();
         });
     })
-    .catch(function(err) {
+    .catch(function (err) {
       console.log(err);
     });
 }
 
-function changeConfidence () {
+function changeConfidence() {
   user_confidence = document.getElementById("confidence").value / 100;
 }
 
-document.getElementById("confidence").addEventListener("input", changeConfidence);
+document
+  .getElementById("confidence")
+  .addEventListener("input", changeConfidence);
 
 webcamInference();
