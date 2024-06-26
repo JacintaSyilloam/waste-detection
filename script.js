@@ -40,24 +40,24 @@ function detectFrame() {
   model.detect(video).then(function (predictions) {
     console.log(predictions);
 
-    // PLASTIC CATEGORY
-    // Remove if webcam is pointing to plastic waste bin
-    _.each(predictions, function (prediction) {
-      if (
-        prediction.class == "Plastic bag" ||
-        prediction.class == "Plastic bottle"
-      ) {
-        sound_alert.play();
-      }
-    });
-
-    // // ORGANIC
-    // // Remove if webcam is pointing to organic waste bin
+    // // PLASTIC CATEGORY
+    // // Remove if webcam is pointing to plastic waste bin
     // _.each(predictions, function (prediction) {
-    //   if (prediction.class == "Organic") {
+    //   if (
+    //     prediction.class == "Plastic bag" ||
+    //     prediction.class == "Plastic bottle"
+    //   ) {
     //     sound_alert.play();
     //   }
     // });
+
+    // ORGANIC
+    // Remove if webcam is pointing to organic waste bin
+    _.each(predictions, function (prediction) {
+      if (prediction.class == "Organic") {
+        sound_alert.play();
+      }
+    });
 
     // OTHERS
     // Remove if webcam is pointing to others waste bin
