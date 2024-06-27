@@ -1,11 +1,3 @@
-// To display predictions, this app has:
-// 1. A video that shows a feed from the user's webcam
-// 2. A canvas that appears over the video and shows predictions
-// When the page loads, a user is asked to give webcam permission.
-// After this happens, the model initializes and starts to make predictions
-// On the first prediction, an initialiation step happens in detectFrame()
-// to prepare the canvas on which predictions are displayed.
-
 var bounding_box_colors = {};
 
 var user_confidence = 0.6;
@@ -33,6 +25,29 @@ var ctx = canvas.getContext("2d");
 var model = null;
 
 let sound_alert = new Audio("incorrect-buzzer-sound-147336.mp3");
+
+// Array to store the log of predictions
+var log_predictions = [];
+var last_predictions = [];
+
+// Interval time for updating log (in milliseconds)
+var log_interval = 5000;
+
+// Function to check if there are new predictions
+function hasNewPredictions(predictions) {
+  if (predictions.length !== last_predictions.length) return true;
+
+  for (let i = 0; i < predictions.length; i++) {
+    if (
+      predictions[i].class !== last_predictions[i].class ||
+      predictions[i].confidence !== last_predictions[i].confidence
+    ) {
+      return true;
+    }
+  }
+
+  return false;
+}
 
 function detectFrame() {
   if (!model) return requestAnimationFrame(detectFrame);
@@ -71,6 +86,12 @@ function detectFrame() {
         sound_alert.play();
       }
     });
+
+    // Only save and display log if there are new predictions
+    if (hasNewPredictions(predictions)) {
+      last_predictions = predictions.slice(); // Save the current predictions
+      saveLog(predictions);
+    }
 
     if (!canvas_painted) {
       var video_start = document.getElementById("video1");
@@ -235,3 +256,40 @@ document
   .addEventListener("input", changeConfidence);
 
 webcamInference();
+
+function saveLog(predictions) {
+  predictions.forEach(function (prediction) {
+    if (prediction.confidence >= user_confidence) {
+      var log_entry = {
+        timestamp: new Date().toISOString(),
+        class: prediction.class,
+        confidence: prediction.confidence,
+      };
+      log_predictions.push(log_entry);
+    }
+  });
+  displayLog();
+}
+
+function displayLog() {
+  var logContainer = document.getElementById("log_container");
+  logContainer.innerHTML = ""; // Clear previous log
+
+  log_predictions.forEach(function (log_entry) {
+    var logDiv = document.createElement("div");
+    logDiv.className = "log-entry";
+    logDiv.innerHTML =
+      "<strong>Timestamp:</strong> " + log_entry.timestamp + "<br>" +
+      "<strong>Class:</strong> " + log_entry.class + "<br>" +
+      "<strong>Confidence:</strong> " + (log_entry.confidence * 100).toFixed(2) + "%" + "<br>" +
+      "<strong>Detected on: </strong>" + "plastic bin";
+    logContainer.appendChild(logDiv);
+  });
+}
+
+// Schedule the log update every 5 seconds
+setInterval(function () {
+  if (last_predictions.length > 0) {
+    displayLog();
+  }
+}, log_interval);
