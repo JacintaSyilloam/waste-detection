@@ -20,34 +20,6 @@
     const MODEL_NAME = "waste-object-detection-hltsh";
     const MODEL_VERSION = 1;
   </script>
-  <style>
-    .main-content {
-      display: flex;
-      flex-wrap: wrap;
-    }
-
-    .camera-display, .camera-locations {
-      padding: 15px;
-      box-sizing: border-box;
-    }
-
-    .camera-display {
-      flex: 0 0 65%;
-      max-width: 65%;
-    }
-
-    .camera-locations {
-      flex: 0 0 35%;
-      max-width: 35%;
-    }
-
-    .slider-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-    }
-  </style>
 </head>
 
 <body>
@@ -62,10 +34,10 @@
         <li class="nav-item">
           <a class="nav-link" href="index.html">Home</a>
         </li>
-        <li class="nav-item active">
+        <li class="nav-item">
           <a class="nav-link" href="cameras.html">Cameras <span class="sr-only">(current)</span></a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item active">
           <a class="nav-link" href="admin.html">Admin</a>
         </li>
       </ul>
@@ -81,25 +53,12 @@
     </div>
 
     <div class="main-content">
-      <!-- Left side: Camera display -->
-      <div class="camera-display">
-        <p id="loading">Loading...</p>
-        <!-- The canvas below is required -->
-        <section class="infer-widget">
-          <canvas width="640" height="480" id="video_canvas"></canvas>
-        </section>
-        <section id="settings" class="mt-4 slider-container">
-          <label for="confidence">Prediction Confidence %</label><br>
-          <input type="range" min="1" max="100" value="60" class="slider" id="confidence">
-        </section>
-      </div>
-      
-      <!-- Right side: Camera location list -->
+      <!-- Left side: Camera location list -->
       <div class="camera-locations">
         <section id="searchResults" class="mt-4">
           <h2>Camera Locations</h2>
           <ul id="cameraList" class="list-group">
-            <!-- Example camera locations -->
+            <!-- Camera locations -->
             <li class="list-group-item">TW2-701</li>
             <li class="list-group-item">TW2-702</li>
             <li class="list-group-item">TW2-703</li>
@@ -109,24 +68,24 @@
           </ul>
         </section>
       </div>
+      
+      <!-- Right side: Camera display -->
+      <div class="camera-display">
+        <p id="loading">Loading...</p>
+        <!-- The canvas below is required -->
+        <section class="infer-widget">
+          <img id="streamImage" src="http://192.168.100.62:81/stream" style="width: 100%; max-width: 600px;" />
+          <canvas id="video_canvas" style="position: absolute; top: 0; left: 0;"></canvas>
+        </section>
+        <section id="settings" class="mt-4 slider-container">
+          <label for="confidence">Prediction Confidence %</label><br>
+          <input type="range" min="1" max="100" value="60" class="slider" id="confidence">
+        </section>
+      </div>
     </div>
-    <div id="log_container"></div>
+
     <!-- Load our application logic -->
     <script src="./script.js"></script>
-
-    <script>
-      function searchCameras() {
-        const input = document.getElementById('searchInput').value.toLowerCase();
-        const cameraList = document.getElementById('cameraList');
-        const items = cameraList.getElementsByTagName('li');
-
-        for (let i = 0; i < items.length; i++) {
-          const item = items[i];
-          const text = item.textContent || item.innerText;
-          item.style.display = text.toLowerCase().includes(input) ? '' : 'none';
-        }
-      }
-    </script>
   </main>
 </body>
 

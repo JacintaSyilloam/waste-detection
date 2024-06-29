@@ -74,7 +74,8 @@
         <p id="loading">Loading...</p>
         <!-- The canvas below is required -->
         <section class="infer-widget">
-          <canvas width="640" height="480" id="video_canvas"></canvas>
+          <img id="streamImage" src="http://192.168.100.62:81/stream" style="width: 100%; max-width: 600px;" />
+          <canvas id="video_canvas" style="position: absolute; top: 0; left: 0;"></canvas>
         </section>
         <section id="settings" class="mt-4 slider-container">
           <label for="confidence">Prediction Confidence %</label><br>
@@ -85,20 +86,6 @@
 
     <!-- Load our application logic -->
     <script src="./script.js"></script>
-
-    <script>
-      function searchCameras() {
-        const input = document.getElementById('searchInput').value.toLowerCase();
-        const cameraList = document.getElementById('cameraList');
-        const items = cameraList.getElementsByTagName('li');
-
-        for (let i = 0; i < items.length; i++) {
-          const item = items[i];
-          const text = item.textContent || item.innerText;
-          item.style.display = text.toLowerCase().includes(input) ? '' : 'none';
-        }
-      }
-    </script>
   </main>
 </body>
 
