@@ -1,27 +1,21 @@
 var bounding_box_colors = {};
-
 var user_confidence = 0.6;
 var color_choices = [
     "#C7FC00", "#FF00FF", "#8622FF", "#FE0056", "#00FFCE",
     "#FF8000", "#00B7EB", "#FFFF00", "#0E7AFE", "#FFABAB",
     "#0000FF", "#CCCCCC"
 ];
-
 var canvas_painted = false;
 var canvas = document.getElementById("video_canvas");
 var ctx = canvas.getContext("2d");
-
 var model = null;
 let sound_alert = new Audio("incorrect-buzzer-sound-147336.mp3");
+var last_predictions = []; // Deklarasi last_predictions
 
-var log_predictions = [];
-var last_predictions = [];
-var log_interval = 5000;
-
-const publishable_key = 'YOUR_PUBLISHABLE_KEY';
-const MODEL_NAME = 'YOUR_MODEL_NAME';
-const MODEL_VERSION = 'YOUR_MODEL_VERSION';
-const CONFIDENCE_THRESHOLD = 0.5;
+const publishable_key = 'rf_s5mLklPKt7aeAVvKicXID72mzsG2';
+const MODEL_NAME = 'waste-object-detection-hltsh';
+const MODEL_VERSION = 1;
+const CONFIDENCE_THRESHOLD = 0.1;
 
 function hasNewPredictions(predictions) {
     if (predictions.length !== last_predictions.length) return true;
@@ -43,11 +37,11 @@ function detectFrame() {
     model.detect(img).then(function (predictions) {
         console.log(predictions);
 
-        predictions.forEach(function (prediction) {
-            if (prediction.class == "Plastic bag" || prediction.class == "Plastic bottle") {
-                sound_alert.play();
-            }
-        });
+        // predictions.forEach(function (prediction) {
+        //     if (prediction.class == "Plastic bag" || prediction.class == "Plastic bottle") {
+        //         sound_alert.play();
+        //     }
+        // });
 
         predictions.forEach(function (prediction) {
             if (prediction.class == "Organic") {
@@ -55,18 +49,17 @@ function detectFrame() {
             }
         });
 
-        predictions.forEach(function (prediction) {
-            if (prediction.class == "Container for household chemicals" ||
-                prediction.class == "Aluminum can" ||
-                prediction.class == "Glass bottle" ||
-                prediction.class == "Cardboard") {
-                sound_alert.play();
-            }
-        });
+        // predictions.forEach(function (prediction) {
+        //     if (prediction.class == "Container for household chemicals" ||
+        //         prediction.class == "Aluminum can" ||
+        //         prediction.class == "Glass bottle" ||
+        //         prediction.class == "Cardboard") {
+        //         sound_alert.play();
+        //     }
+        // });
 
         if (hasNewPredictions(predictions)) {
             last_predictions = predictions.slice();
-            saveLog(predictions);
         }
 
         if (!canvas_painted) {
@@ -166,39 +159,3 @@ function changeConfidence() {
 document.getElementById("confidence").addEventListener("input", changeConfidence);
 
 webcamInference();
-
-function saveLog(predictions) {
-    predictions.forEach(function (prediction) {
-        if (prediction.confidence >= user_confidence) {
-            var log_entry = {
-                timestamp: new Date().toISOString(),
-                class: prediction.class,
-                confidence: prediction.confidence,
-            };
-            log_predictions.push(log_entry);
-        }
-    });
-    displayLog();
-}
-
-function displayLog() {
-    var logContainer = document.getElementById("log_container");
-    logContainer.innerHTML = ""; 
-
-    log_predictions.forEach(function (log_entry) {
-        var logDiv = document.createElement("div");
-        logDiv.className = "log-entry";
-        logDiv.innerHTML =
-            "<strong>Timestamp:</strong> " + log_entry.timestamp + "<br>" +
-            "<strong>Class:</strong> " + log_entry.class + "<br>" +
-            "<strong>Confidence:</strong> " + (log_entry.confidence * 100).toFixed(2) + "%" + "<br>" +
-            "<strong>Detected on: </strong>" + "plastic bin";
-        logContainer.appendChild(logDiv);
-    });
-}
-
-setInterval(function () {
-    if (last_predictions.length > 0) {
-        displayLog();
-    }
-}, log_interval);
