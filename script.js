@@ -31,19 +31,25 @@ function hasNewPredictions(predictions) {
 }
 
 // WebSocket connection
-let socket = new WebSocket("ws://192.168.1.29:81/");
+const websocketURL = `ws://192.168.1.29:81/`; // Replace with your ESP32 IP address
+const ws = new WebSocket(websocketURL);
 
-socket.onopen = function(e) {
-    console.log("[open] Connection established");
+ws.onopen = function() {
+    console.log("WebSocket connection opened");
 };
 
-socket.onclose = function(e) {
-    console.log("[close] Connection closed");
+ws.onmessage = function(event) {
+    console.log("Message from server: ", event.data);
 };
 
-socket.onerror = function(error) {
-    console.error(`[error] ${error.message}`);
+ws.onclose = function() {
+    console.log("WebSocket connection closed");
 };
+
+ws.onerror = function(error) {
+    console.log("WebSocket error: ", error);
+};
+
 
 function detectFrame() {
     if (!model) return requestAnimationFrame(detectFrame);
