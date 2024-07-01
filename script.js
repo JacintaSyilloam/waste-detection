@@ -1,3 +1,4 @@
+
 var bounding_box_colors = {};
 var user_confidence = 0.6;
 var color_choices = [
@@ -10,7 +11,7 @@ var canvas = document.getElementById("video_canvas");
 var ctx = canvas.getContext("2d");
 var model = null;
 let sound_alert = new Audio("incorrect-buzzer-sound-147336.mp3");
-var last_predictions = []; // Deklarasi last_predictions
+var last_predictions = [];
 
 const publishable_key = 'rf_s5mLklPKt7aeAVvKicXID72mzsG2';
 const MODEL_NAME = 'waste-object-detection-hltsh';
@@ -29,34 +30,47 @@ function hasNewPredictions(predictions) {
     return false;
 }
 
+// WebSocket connection
+const websocketURL = `ws://192.168.1.29:81/`; // Replace with your ESP32 IP address
+const ws = new WebSocket(websocketURL);
+
+ws.onopen = function() {
+    console.log("WebSocket connection opened");
+};
+
+ws.onmessage = function(event) {
+    console.log("Message from server: ", event.data);
+};
+
+ws.onclose = function() {
+    console.log("WebSocket connection closed");
+};
+
+ws.onerror = function(error) {
+    console.log("WebSocket error: ", error);
+};
+
+
 function detectFrame() {
     if (!model) return requestAnimationFrame(detectFrame);
 
     const img = document.getElementById("streamImage");
 
-    model.detect(img).then(function (predictions) {
+    model.detect(img).then(function(predictions) {
         console.log(predictions);
 
-        // predictions.forEach(function (prediction) {
-        //     if (prediction.class == "Plastic bag" || prediction.class == "Plastic bottle") {
-        //         sound_alert.play();
-        //     }
-        // });
+        let objectDetected = false;
 
-        predictions.forEach(function (prediction) {
-            if (prediction.class == "Organic") {
+        predictions.forEach(function(prediction) {
+            if (prediction.class == "Plastic Bag" && prediction.confidence > user_confidence) {
                 sound_alert.play();
+                objectDetected = true;
             }
         });
 
-        // predictions.forEach(function (prediction) {
-        //     if (prediction.class == "Container for household chemicals" ||
-        //         prediction.class == "Aluminum can" ||
-        //         prediction.class == "Glass bottle" ||
-        //         prediction.class == "Cardboard") {
-        //         sound_alert.play();
-        //     }
-        // });
+        if (objectDetected && socket.readyState === WebSocket.OPEN) {
+            socket.send("trigger_buzzer");
+        }
 
         if (hasNewPredictions(predictions)) {
             last_predictions = predictions.slice();
@@ -159,6 +173,7 @@ function changeConfidence() {
 document.getElementById("confidence").addEventListener("input", changeConfidence);
 
 webcamInference();
+<<<<<<< HEAD
 
 function searchCameras() {
     const searchInput = document.getElementById('searchInput').value.toUpperCase();
@@ -190,3 +205,5 @@ function searchCameras() {
     // Redirect to cameras.html with query parameter
     window.location.href = `cameras.html?camera=${cameraId}`;
   }
+=======
+>>>>>>> 3a3c2ba5b7187c24422ed04f938b4d056c5927c5
