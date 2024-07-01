@@ -159,3 +159,34 @@ function changeConfidence() {
 document.getElementById("confidence").addEventListener("input", changeConfidence);
 
 webcamInference();
+
+function searchCameras() {
+    const searchInput = document.getElementById('searchInput').value.toUpperCase();
+    const cameraList = document.getElementById('cameraList').getElementsByTagName('li');
+    let found = false;
+
+    for (let i = 0; i < cameraList.length; i++) {
+      if (cameraList[i].textContent.toUpperCase() === searchInput) {
+        redirectToCamera(cameraList[i].id);
+        found = true;
+        break;
+      }
+    }
+
+    if (!found) {
+      alert('Camera location not found.');
+    }
+  }
+
+  function redirectToCamera(cameraId) {
+    // Highlight the selected camera
+    const cameraList = document.getElementById('cameraList').getElementsByTagName('li');
+    for (let i = 0; i < cameraList.length; i++) {
+      cameraList[i].classList.remove('highlighted');
+      if (cameraList[i].id === cameraId) {
+        cameraList[i].classList.add('highlighted');
+      }
+    }
+    // Redirect to cameras.html with query parameter
+    window.location.href = `cameras.html?camera=${cameraId}`;
+  }
