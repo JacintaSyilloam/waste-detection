@@ -1,3 +1,4 @@
+
 var bounding_box_colors = {};
 var user_confidence = 0.6;
 var color_choices = [
@@ -10,7 +11,7 @@ var canvas = document.getElementById("video_canvas");
 var ctx = canvas.getContext("2d");
 var model = null;
 let sound_alert = new Audio("incorrect-buzzer-sound-147336.mp3");
-var last_predictions = []; // Deklarasi last_predictions
+var last_predictions = [];
 
 const publishable_key = 'rf_s5mLklPKt7aeAVvKicXID72mzsG2';
 const MODEL_NAME = 'waste-object-detection-hltsh';
@@ -29,34 +30,41 @@ function hasNewPredictions(predictions) {
     return false;
 }
 
+// WebSocket connection
+let socket = new WebSocket("ws://192.168.1.29:81/");
+
+socket.onopen = function(e) {
+    console.log("[open] Connection established");
+};
+
+socket.onclose = function(e) {
+    console.log("[close] Connection closed");
+};
+
+socket.onerror = function(error) {
+    console.error(`[error] ${error.message}`);
+};
+
 function detectFrame() {
     if (!model) return requestAnimationFrame(detectFrame);
 
     const img = document.getElementById("streamImage");
 
-    model.detect(img).then(function (predictions) {
+    model.detect(img).then(function(predictions) {
         console.log(predictions);
 
-        // predictions.forEach(function (prediction) {
-        //     if (prediction.class == "Plastic bag" || prediction.class == "Plastic bottle") {
-        //         sound_alert.play();
-        //     }
-        // });
+        let objectDetected = false;
 
-        predictions.forEach(function (prediction) {
-            if (prediction.class == "Organic") {
+        predictions.forEach(function(prediction) {
+            if (prediction.class == "Plastic Bag" && prediction.confidence > user_confidence) {
                 sound_alert.play();
+                objectDetected = true;
             }
         });
 
-        // predictions.forEach(function (prediction) {
-        //     if (prediction.class == "Container for household chemicals" ||
-        //         prediction.class == "Aluminum can" ||
-        //         prediction.class == "Glass bottle" ||
-        //         prediction.class == "Cardboard") {
-        //         sound_alert.play();
-        //     }
-        // });
+        if (objectDetected && socket.readyState === WebSocket.OPEN) {
+            socket.send("trigger_buzzer");
+        }
 
         if (hasNewPredictions(predictions)) {
             last_predictions = predictions.slice();
