@@ -173,7 +173,6 @@ function changeConfidence() {
 document.getElementById("confidence").addEventListener("input", changeConfidence);
 
 webcamInference();
-<<<<<<< HEAD
 
 function searchCameras() {
     const searchInput = document.getElementById('searchInput').value.toUpperCase();
@@ -205,5 +204,3 @@ function searchCameras() {
     // Redirect to cameras.html with query parameter
     window.location.href = `cameras.html?camera=${cameraId}`;
   }
-=======
->>>>>>> 3a3c2ba5b7187c24422ed04f938b4d056c5927c5
